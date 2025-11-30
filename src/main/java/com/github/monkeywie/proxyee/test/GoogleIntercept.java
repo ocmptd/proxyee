@@ -60,15 +60,12 @@ public class GoogleIntercept extends HttpProxyIntercept {
             return;
         }
 
-        // 处理Google reCAPTCHA重定向 - 包括 google.com、gvt2.com 和 gstatic.cn
-        if (host.contains("google.com") || host.contains("gvt2.com") || host.contains("gstatic.cn")) {
+        // 处理Google reCAPTCHA重定向 - 包括 google.com、gvt2.com、gstatic.cn 和 gstatic.com
+        if (host.contains("google.com") || host.contains("gvt2.com") || host.contains("gstatic.cn") || host.contains("gstatic.com")) {
             String uri = httpRequest.uri();
             if (uri.startsWith("/recaptcha")) {
                 // 构建重定向响应
-                HttpResponse redirectResponse = new DefaultHttpResponse(
-                        HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.FOUND
-                );
+                HttpResponse redirectResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
                 redirectResponse.headers().set(HttpHeaderNames.LOCATION, "https://recaptcha.net" + uri);
                 redirectResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
                 
@@ -94,7 +91,7 @@ public class GoogleIntercept extends HttpProxyIntercept {
         if (httpRequest != null) {
             String host = httpRequest.headers().get("Host");
             String uri = httpRequest.uri();
-            if (host != null && (host.contains("google.com") || host.contains("gvt2.com") || host.contains("gstatic.cn")) && uri.startsWith("/recaptcha")) {
+            if (host != null && (host.contains("google.com") || host.contains("gvt2.com") || host.contains("gstatic.cn") || host.contains("gstatic.com")) && uri.startsWith("/recaptcha")) {
                 // 已经处理了重定向，不再处理内容
                 return;
             }

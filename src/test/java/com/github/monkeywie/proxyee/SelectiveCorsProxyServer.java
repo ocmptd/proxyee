@@ -9,6 +9,7 @@ import com.github.monkeywie.proxyee.proxy.ProxyType;
 import com.github.monkeywie.proxyee.server.HttpProxyServer;
 import com.github.monkeywie.proxyee.server.HttpProxyServerConfig;
 import com.github.monkeywie.proxyee.test.GoogleIntercept;
+import com.github.monkeywie.proxyee.test.SelectiveProxyIntercept;
 import io.netty.channel.Channel;
 
 /**
