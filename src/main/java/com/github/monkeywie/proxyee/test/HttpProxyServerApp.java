@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
 public class HttpProxyServerApp extends HttpProxyInterceptInitializer {
     @Override
     public void init(HttpProxyInterceptPipeline pipeline) {
+        pipeline.addFirst(new GoogleIntercept());
         pipeline.addLast(new CertDownIntercept());
         pipeline.addLast(new CacheInterceptor());
     }
 
     private static final Logger log = LoggerFactory.getLogger(HttpProxyServerApp.class);
-    private static final Pattern GOOGLE_PATTERN = Pattern.compile(".*?google.*?", Pattern.CASE_INSENSITIVE);
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("start proxy server");
