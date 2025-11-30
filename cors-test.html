@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google 服务 CORS 测试</h1>
+    <p>这个页面用于测试 GoogleIntercept 的 CORS 处理功能。请确保代理服务器正在运行在 127.0.0.1:8888。</p>
+    
+    <div class="test-section">
+        <h3>测试 1: gstatic.cn 重定向</h3>
+        <p>测试 URL: <code>https://www.gstatic.cn/recaptcha/releases/TkacYOdEJbdB_JjX802TMer9/recaptcha__zh_cn.js</code></p>
+        <button onclick="testGstaticCors()">测试 CORS 请求</button>
+        <div id="gstatic-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试 2: google.com 重定向</h3>
+        <p>测试 URL: <code>https://www.google.com/recaptcha/api.js</code></p>
+        <button onclick="testGoogleCors()">测试 CORS 请求</button>
+        <div id="google-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试 3: OPTIONS 预检请求</h3>
+        <p>测试 gstatic.cn 的 OPTIONS 预检请求处理</p>
+        <button onclick="testOptionsRequest()">测试 OPTIONS 请求</button>
+        <div id="options-result" class="result"></div>
+    </div>
+
+    <script>
+        // 配置代理（这需要在浏览器级别设置，这里只是示例）
+        console.log('请确保浏览器代理设置为 127.0.0.1:8888');
+
+        async function testGstaticCors() {
+            const resultDiv = document.getElementById('gstatic-result');
+            const url = 'https://www.gstatic.cn/recaptcha/releases/TkacYOdEJbdB_JjX802TMer9/recaptcha__zh_cn.js';
+            
+            try {
+                resultDiv.textContent = '正在发送请求...';
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors', // 重要：使用 CORS 模式
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/javascript',
+                        'Origin': window.location.origin
+                    }
+                });
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    redirected: response.redirected,
+                    url: response.url
+                };
+                
+                resultDiv.textContent = '✅ 成功！\n' + JSON.stringify(result, null, 2);
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.textContent = '❌ 错误：\n' + error.message;
+                resultDiv.className = 'result error';
+                console.error('CORS 错误详情:', error);
+            }
+        }
+        
+        async function testGoogleCors() {
+            const resultDiv = document.getElementById('google-result');
+            const url = 'https://www.google.com/recaptcha/api.js';
+            
+            try {
+                resultDiv.textContent = '正在发送请求...';
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/javascript',
+                        'Origin': window.location.origin
+                    }
+                });
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    redirected: response.redirected,
+                    url: response.url
+                };
+                
+                resultDiv.textContent = '✅ 成功！\n' + JSON.stringify(result, null, 2);
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.textContent = '❌ 错误：\n' + error.message;
+                resultDiv.className = 'result error';
+                console.error('CORS 错误详情:', error);
+            }
+        }
+        
+        async function testOptionsRequest() {
+            const resultDiv = document.getElementById('options-result');
+            const url = 'https://www.gstatic.cn/recaptcha/releases/TkacYOdEJbdB_JjX802TMer9/recaptcha__zh_cn.js';
+            
+            try {
+                resultDiv.textContent = '正在发送 OPTIONS 请求...';
+                const response = await fetch(url, {
+                    method: 'OPTIONS',
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'content-type'
+                    }
+                });
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries())
+                };
+                
+                resultDiv.textContent = '✅ OPTIONS 请求成功！\n' + JSON.stringify(result, null, 2);
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.textContent = '❌ OPTIONS 错误：\n' + error.message;
+                resultDiv.className = 'result error';
+                console.error('OPTIONS 错误详情:', error);
+            }
+        }
+    </script>
+</body>
+</html>

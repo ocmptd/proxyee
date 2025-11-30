@@ -43,6 +43,7 @@ public class HttpProxyServerConfig {
     private IdleStateCheck idleStateCheck;
     private ChannelFactory<SocketChannel> channelFactory;
     private boolean forceResolveDNS = false;
+    private int connectTimeout = 10000; // 连接超时时间，默认10秒
 
     public HttpProxyServerConfig() {
         this(DefaultAddressResolverGroup.INSTANCE);
@@ -71,6 +72,7 @@ public class HttpProxyServerConfig {
         this.maxHeaderSize = builder.maxHeaderSize;
         this.maxChunkSize = builder.maxChunkSize;
         this.idleStateCheck = builder.idleStateCheck;
+        this.connectTimeout = builder.connectTimeout;
     }
 
     public void setForceResolveDNS(boolean forceResolveDNS) {
@@ -79,6 +81,14 @@ public class HttpProxyServerConfig {
 
     public boolean getForceResolveDNS() {
         return forceResolveDNS;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
     }
 
     public ChannelFactory<SocketChannel> getChannelFactory() {
@@ -276,11 +286,14 @@ public class HttpProxyServerConfig {
         private boolean handleSsl;
         private HttpProxyAcceptHandler httpProxyAcceptHandler;
         private HttpProxyAuthenticationProvider authenticationProvider;
+        private HttpProxyMitmMatcher mitmMatcher;
         private final AddressResolverGroup<? extends SocketAddress> resolver;
+        private Iterable<String> ciphers;
         private int maxInitialLineLength = HttpObjectDecoder.DEFAULT_MAX_INITIAL_LINE_LENGTH;
         private int maxHeaderSize = HttpObjectDecoder.DEFAULT_MAX_HEADER_SIZE;
         private int maxChunkSize = HttpObjectDecoder.DEFAULT_MAX_CHUNK_SIZE;
         private IdleStateCheck idleStateCheck;
+        private int connectTimeout = 10000; // 连接超时时间，默认10秒
 
         public Builder() {
             this(DefaultAddressResolverGroup.INSTANCE);
@@ -377,6 +390,11 @@ public class HttpProxyServerConfig {
 
         public Builder setIdleStateCheck(IdleStateCheck idleStateCheck) {
             this.idleStateCheck = idleStateCheck;
+            return this;
+        }
+
+        public Builder setConnectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
             return this;
         }
 

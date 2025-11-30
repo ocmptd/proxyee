@@ -119,7 +119,7 @@ public class CacheInterceptor extends FullResponseIntercept {
 
         // 处理静态资源请求
         if (STATIC_PATTERN.matcher(uri).matches()) {
-            Path cacheFile = getCacheFilePath(uri);
+            Path cacheFile = getCacheFilePath(httpRequest.headers().get("Host"),uri);
             // 如果缓存存在，直接返回本地文件
             if (Files.exists(cacheFile)) {
                 System.out.println("Serving from cache: " + uri);
@@ -147,7 +147,7 @@ public class CacheInterceptor extends FullResponseIntercept {
                 // 对于 304 响应，我们不需要缓存内容，但可能需要更新缓存头
                 if (statusCode == 200) {
                     try {
-                        saveToCache(request.uri(), httpResponse.content());
+                        saveToCache(request, httpResponse.content());
                     } catch (IOException e) {
                         log.error("Error caching resource: {}", request.uri(), e);
                     }
@@ -158,10 +158,12 @@ public class CacheInterceptor extends FullResponseIntercept {
         }
     }
 
-    private Path getCacheFilePath(String uri) {
+    private Path getCacheFilePath(String host,String uri) {
         // 使用URI的MD5哈希值作为文件名，减少哈希冲突的可能性
-        String fileName = String.format("%032x", uri.hashCode()) + "_" +
-                Integer.toUnsignedString(uri.hashCode(), 36) + ".cache";
+//        String fileName = String.format("%032x", uri.hashCode()) + "_" +
+//                Integer.toUnsignedString(uri.hashCode(), 36) + ".cache";
+//        return Paths.get(cacheDir, fileName);
+        String fileName = host + "_" + uri.replaceAll("/", "_") + ".cache";
         return Paths.get(cacheDir, fileName);
     }
 
@@ -185,14 +187,15 @@ public class CacheInterceptor extends FullResponseIntercept {
         channel.writeAndFlush(Unpooled.wrappedBuffer(content));
     }
 
-    private void saveToCache(String uri, io.netty.buffer.ByteBuf content) throws IOException {
-        Path cacheFile = getCacheFilePath(uri);
+    private void saveToCache(HttpRequest request, io.netty.buffer.ByteBuf content) throws IOException {
+        String host = request.headers().get("Host");
+        Path cacheFile = getCacheFilePath(host,request.uri());
         // 确保缓存目录存在
         Files.createDirectories(cacheFile.getParent());
         byte[] bytes = new byte[content.readableBytes()];
         content.getBytes(content.readerIndex(), bytes);
         Files.write(cacheFile, bytes);
-        System.out.println("Cached resource: " + uri);
+        System.out.println("Cached resource: " + request.uri());
     }
 
     private String getContentType(String uri) {

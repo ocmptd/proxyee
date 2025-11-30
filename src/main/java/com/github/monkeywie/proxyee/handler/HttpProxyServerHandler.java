@@ -337,6 +337,7 @@ public class HttpProxyServerHandler extends ChannelInboundHandlerAdapter {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(getServerConfig().getProxyLoopGroup()) // 注册线程池
                     .channelFactory(getServerConfig().getChannelFactory())
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, serverConfig.getConnectTimeout())
                     .handler(channelInitializer);
             if (proxyHandler != null && !getServerConfig().getForceResolveDNS()) {
                 // 代理服务器解析DNS和连接
