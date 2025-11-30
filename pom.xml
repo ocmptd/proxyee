@@ -72,6 +72,11 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>1.60</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.20</version>
+        </dependency>
     </dependencies>
 
 
@@ -184,7 +189,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.github.monkeywie.proxyee.HttpProxyServerApp</mainClass>
+                                    <mainClass>com.github.monkeywie.proxyee.test.HttpProxyServerApp</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
